@@ -49,7 +49,7 @@ Poi `http://localhost:8000/` (prod) o `http://localhost:8000/test/` (prova). Gli
 - Speciali/super dei lottatori del fork riusano i set "storici" in `mn` che nessun lottatore attuale usa (`mn.francesco` per roberto, `mn.giacomo` per andrea).
 - Ritratti/teste HUD dei lottatori del fork in `pg_art.js` (`MB_PG_ART`, `MB_PG_META`, `MB_HUD_HEAD`), generati da `characters/tools/build_art.py` nel repo asset; il `?v=` di `pg_art.js` nelle due pagine è aggiornato all'hash del file.
 - Un nuovo lottatore deve comparire in **tutte** quelle tabelle: se manca da `Et` il gioco scrive "mancano combo", se manca da `MB_LOOKS`/`ye` `buildFighterModel` lo tratta come sconosciuto. Non riusare super che trasformano il modello (`fn(e,t,"fat"…)` ecc.): caricano il `.glb` di un altro personaggio.
-- La pipeline dei personaggi è in `../monkeys-brawl-assets/characters/tools/` (`build_glb.sh <id>`: articolazioni automatiche, rig, ottimizzazione); i sorgenti di ogni personaggio in `characters/<id>/`. Le foto di partenza (`ref/`) di persone diverse dall'utente non vanno committate: il repo asset è pubblico.
+- La pipeline dei personaggi è in `../monkeys-brawl-assets/characters/tools/` (`build_glb.sh <id>`: articolazioni automatiche, rig, ottimizzazione); i sorgenti di ogni personaggio in `characters/<id>/`. Le foto di partenza (`ref/`) e i file intermedi che le contengono vanno nel repo **privato** `RobertoD91/brawl` (`characters/<id>/ref/`), mai nei due repo pubblici.
 - Le Space Hugging Face usate (FLUX.1 Kontext dev, Hunyuan3D 2.1) girano su ZeroGPU: la quota gratuita giornaliera basta per circa un personaggio (Hunyuan con texture chiede 270 s).
 
 ## Pipeline personaggi 3D (dal brief upstream)
