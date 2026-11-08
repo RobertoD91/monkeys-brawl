@@ -43,6 +43,13 @@ python3 -m http.server 8000
 
 Poi `http://localhost:8000/` (prod) o `http://localhost:8000/test/` (prova). Gli asset arrivano comunque da CDN/Worker remoti, quindi serve rete. Per verifiche automatiche usa Playwright headless (preinstallato) controllando gli errori in console; ricorda che sotto webdriver alcune parti sono disattivate (vedi sopra).
 
+## Modifiche proprie di questo fork
+
+- **Lottatore `roberto`** aggiunto con `python3 tools/add_roberto.py <commit_repo_asset>`: inserisce le sue voci in tutte le tabelle per personaggio del bundle (roster, `MB_LOOKS`, statistiche `nt`, combo `Et`, speciali `Tt` = `mn.francesco`, frasi, provocazioni, descrizioni `ls`/`xu`, `MB_ASSET_META`, `MB_ASSET_VER`) e punta `MB_ASSET_CDN` a `RobertoD91/monkeys-brawl-assets@<commit>`. È idempotente e fallisce se un'ancora non si trova più. Dopo un aggiornamento da upstream (che sovrascrive `index.html`/`test/index.html`) va rilanciato; se fallisce, riallinea le ancore nello script.
+- Ritratto/testa HUD di roberto in `pg_art.js` (`MB_PG_ART`, `MB_PG_META`, `MB_HUD_HEAD`), generati da `characters/roberto/art/build_art.py` nel repo asset; il `?v=` di `pg_art.js` nelle due pagine è aggiornato all'hash del file.
+- Un nuovo lottatore deve comparire in **tutte** quelle tabelle: se manca da `Et` il gioco scrive "mancano combo", se manca da `MB_LOOKS`/`ye` `buildFighterModel` lo tratta come sconosciuto. Non riusare super che trasformano il modello (`fn(e,t,"fat"…)` ecc.): caricano il `.glb` di un altro personaggio.
+- I sorgenti della pipeline di roberto stanno in `../monkeys-brawl-assets/characters/roberto/` (README con i comandi).
+
 ## Pipeline personaggi 3D (dal brief upstream)
 
 Per creare/modificare personaggi si segue il brief di Fraffo96 (https://gist.github.com/Fraffo96/88142dc00eb05afd5be5141da5ca62b5). Punti chiave:
