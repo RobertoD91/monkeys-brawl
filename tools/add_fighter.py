@@ -14,7 +14,8 @@ Uso: python3 tools/add_fighter.py <commit_repo_asset> <id> [<id> ...] [--refresh
 
 Lottatori privati: se esiste ../brawl/game/fighters_private.py (o $BRAWL_PRIVATE), le sue voci
 FIGHTERS_PRIVATE si aggiungono a FIGHTERS. Quelle con local=True non passano da jsDelivr: il nome del
-.glb finisce in MB_ASSET_NOCDN e MB_ASSET_BASE diventa "assets/" (il sito privato li serve da sé).
+.glb finisce in MB_LOCAL_GLB e un piccolo hook su XMLHttpRequest reindirizza le loro richieste a
+assets/chars/<id>.glb (il sito privato li serve da sé; il resto degli asset non cambia).
 Non usarle mai sulle pagine del repo pubblico.
 """
 import hashlib, json, os, re, struct, sys
@@ -172,14 +173,15 @@ def glb_file(fid):
 
 def add(s, fid, cfg):
     glb_path = glb_file(fid)
-    if cfg.get('local'):            # servito dal sito stesso, non da jsDelivr
-        s, n = re.subn(r"window\.MB_ASSET_BASE=window\.MB_ASSET_BASE\|\|'[^']*';", "window.MB_ASSET_BASE='assets/';", s)
-        assert n <= 1
-        anchor = "window.MB_ASSET_BASE='assets/';"
-        assert anchor in s, 'MB_ASSET_BASE'
-        if 'window.MB_ASSET_NOCDN=[' not in s:
-            s = s.replace(anchor, anchor + 'window.MB_ASSET_NOCDN=[];', 1)
-        s = s.replace('window.MB_ASSET_NOCDN=[', 'window.MB_ASSET_NOCDN=["%s.glb",' % fid, 1)
+    if cfg.get('local'):            # servito dal sito stesso (assets/chars/<id>.glb), non da jsDelivr
+        anchor = re.search(r"window\.MB_ASSET_BASE=window\.MB_ASSET_BASE\|\|'[^']*';", s).group(0)
+        if 'window.MB_LOCAL_GLB=[' not in s:
+            hook = ("window.MB_LOCAL_GLB=[];(function(){var o=XMLHttpRequest.prototype.open;"
+                    "XMLHttpRequest.prototype.open=function(m,u){try{var f=String(u).split('?')[0].split('/').pop();"
+                    "if(window.MB_LOCAL_GLB.indexOf(f)>=0&&String(u).indexOf('assets/chars/')!==0)"
+                    "arguments[1]='assets/chars/'+f}catch(e){}return o.apply(this,arguments)}})();")
+            s = s.replace(anchor, anchor + hook, 1)
+        s = s.replace('window.MB_LOCAL_GLB=[', 'window.MB_LOCAL_GLB=["%s.glb",' % fid, 1)
     glb = open(glb_path, 'rb').read()
     ver = hashlib.sha1(glb).hexdigest()[:10]
     model = cfg['model']
